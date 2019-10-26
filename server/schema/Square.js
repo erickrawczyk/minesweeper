@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import { gql, UserInputError } from 'apollo-server-express';
 
 export const typeDefs = gql`
   type Square {
@@ -25,38 +25,62 @@ export const resolvers = {
     },
   },
   Mutation: {
-    move(_, { gameId, x, y }) {
-      /*
-      // update selected square
-      update squares set selected = true where gameId = $1, x = $2, y = $3 returning *
+    async move(_, { gameId, x, y }, { db }) {
+      // Load square to make sure it's not already selected
+      const { selected } = await db('squares')
+        .select()
+        .where({ game_id: gameId, x, y })
+        .first();
 
-      // lose if bomb
-      if bomb
-        update games set completedAt = now(), result = 'LOST' where id = $1 returning *
-      // otherwise check for win condition where every non-bomb square has been selected
-      else
-        select * from squares where gameId = $1 and hasBomb = false
-        if squares.every(selected) 
-          update games set completedAt = now(), result = 'WON' where id = $1 returning *
-        else
-          select * from games where id = $1
-      */
-      // return {
-      //   id: Math.floor(Math.random() * 1000),
-      //   gameId,
-      //   selected: true,
-      //   hasBomb: Math.random() >= 0.5,
-      //   x,
-      //   y,
-      // };
-      return {
-        id: 'foo',
-        createdAt: new Date().toISOString(),
-        modifiedAt: new Date().toISOString(),
-        completedAt: new Date().toISOString(),
-        width: 3,
-        height: 2,
-      };
+      if (selected) {
+        throw new UserInputError('This square is already selected');
+      }
+
+      // Update selected square
+      const [square] = await db('squares')
+        .update({ selected: true })
+        .where({ game_id: gameId, x, y })
+        .returning('*');
+
+      // Check for explosions
+      if (square.has_bomb) {
+        const [game] = await db('games')
+          .update({
+            completed_at: new Date().toISOString(),
+            result: 'LOST',
+          })
+          .where({ id: gameId })
+          .returning('*');
+
+        return game;
+      }
+
+      // Load squares to check for win condition
+      const squares = await db('squares')
+        .select()
+        .where({
+          game_id: gameId,
+          has_bomb: false,
+        });
+
+      // set game as won
+      if (squares.every(s => s.selected)) {
+        const [game] = await db('games')
+          .update({
+            completed_at: new Date().toISOString(),
+            result: 'WON',
+          })
+          .where({ id: gameId })
+          .returning('*');
+
+        return game;
+      }
+
+      // If game isn't over, load game and return
+      return await db('games')
+        .select()
+        .where({ id: gameId })
+        .first();
     },
   },
 };

@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express';
+import { gql, UserInputError } from 'apollo-server-express';
 
 const MAX_DIMENSION = 25;
 const MIN_DIMENSION = 3;
@@ -61,8 +61,6 @@ export const resolvers = {
       if (board && board.length) return board;
 
       // load squares
-      console.log('loading squares');
-
       const squares = await db('squares')
         .select('*')
         .where({
@@ -81,7 +79,7 @@ export const resolvers = {
     async createGame(_, { width, height }, { db }) {
       // Validate input
       if (![height, width].every(isValid)) {
-        throw new Error(
+        throw new UserInputError(
           `Height and width must be between ${MIN_DIMENSION} and ${MAX_DIMENSION} squares`,
         );
       }
@@ -93,8 +91,8 @@ export const resolvers = {
 
       // Build objects for board squares
       let squares = [];
-      for (let y = 0; y <= height; y++) {
-        for (let x = 0; x <= width; x++) {
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
           squares.push({
             game_id: game.id,
             // Original minesweeper had 12%-17% bomb probability

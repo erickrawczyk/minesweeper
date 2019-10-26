@@ -1,12 +1,19 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+DO $$ BEGIN
+    CREATE TYPE game_result AS ENUM ('WON', 'LOST');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
 CREATE TABLE IF NOT EXISTS games (
   id UUID NOT NULL DEFAULT uuid_generate_v4(),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   modified_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   completed_at TIMESTAMPTZ,
   width INT NOT NULL,
-  height INT NOT NULL
+  height INT NOT NULL,
+  result game_result
 );
 
 CREATE TABLE IF NOT EXISTS squares (
