@@ -1,0 +1,21 @@
+{
+  "name": "minesweeper",
+  "version": "1.0.0",
+  "description": "Minesweeper API",
+  "main": "index.js",
+  "author": "Eric Krawczyk <eric.krawczyk@gmail.com>",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "nodemon server/index.js"
+  },
+  "dependencies": {
+    "apollo-server-express": "^2.9.7",
+    "esm": "^3.2.25",
+    "express": "^4.17.1",
+    "graphql": "^14.5.8"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.4"
+  }
+}
