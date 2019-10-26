@@ -66,7 +66,9 @@ jobs:
 
       - run:
           name: Terraform Plan
-          command: terraform plan
+          command: |
+            echo "export VERSION=$(echo $CIRCLE_SHA1 | cut -c -7)" >> $BASH_ENV
+            terraform plan -var "image_version=$VERSION" -o plan.tfplan
 workflows:
   version: 2
   deploy:

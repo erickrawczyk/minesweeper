@@ -12,7 +12,7 @@ data "template_file" "minesweeper_app" {
   template = file("./templates/minesweeper_app.json.tpl")
 
   vars = {
-    app_image      = join(":", [aws_ecr_repository.minesweeper.repository_url, module.git.short_sha])
+    app_image      = join(":", [aws_ecr_repository.minesweeper.repository_url, var.image_version])
     app_port       = var.app_port
     fargate_cpu    = var.fargate_cpu
     fargate_memory = var.fargate_memory
