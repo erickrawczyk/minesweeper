@@ -1,5 +1,26 @@
 import { gql } from 'apollo-server-express';
 
+import db from '../lib/db';
+
+const MAX_DIMENSION = 25;
+const MIN_DIMENSION = 3;
+
+const isValid = value => {
+  return value >= MIN_DIMENSION && value <= MAX_DIMENSION;
+};
+
+// generate board from squares
+const buildBoard = squares => {
+  const board = [];
+  squares.forEach(square => {
+    const { x, y } = square;
+    if (typeof board[y] === 'undefined') board[y] = [];
+    if (typeof board[y][x] === 'undefined') board[y][x] = square;
+  });
+
+  return board;
+};
+
 export const typeDefs = gql`
   enum GameResult {
     WON
@@ -11,8 +32,8 @@ export const typeDefs = gql`
     createdAt: String!
     modifiedAt: String!
     completedAt: String
-    width: Int!
     height: Int!
+    width: Int!
     board: [[Square]]!
     result: GameResult
   }
@@ -26,67 +47,74 @@ export const typeDefs = gql`
   }
 `;
 
-const game = {
-  id: 'foo',
-  createdAt: new Date().toISOString(),
-  modifiedAt: new Date().toISOString(),
-  completedAt: new Date().toISOString(),
-  width: 3,
-  height: 2,
-};
-
-const createSquare = attrs => ({
-  id: Math.floor(Math.random() * 1000),
-  gameId: 'foo',
-  selected: false,
-  hasBomb: Math.random() >= 0.5,
-  ...attrs,
-});
-
 export const resolvers = {
   Game: {
-    board: () => {
-      const board = [];
-      // replace with select * from squares where gameId = $1
-      const squares = [
-        createSquare({ x: 0, y: 0 }),
-        createSquare({ x: 1, y: 0 }),
-        createSquare({ x: 2, y: 0 }),
-        createSquare({ x: 0, y: 1 }),
-        createSquare({ x: 1, y: 1 }),
-        createSquare({ x: 2, y: 1 }),
-      ];
+    createdAt({ created_at }) {
+      return new Date(created_at).toISOString();
+    },
+    modifiedAt({ modified_at }) {
+      return new Date(modified_at).toISOString();
+    },
+    completedAt({ completed_at }) {
+      return completed_at ? new Date(completed_at).toISOString() : null;
+    },
+    async board({ id, board }) {
+      // bypass query if provided
+      if (board && board.length) return board;
 
-      squares.forEach(square => {
-        const { x, y } = square;
-        if (typeof board[y] === 'undefined') board[y] = [];
-        if (typeof board[y][x] === 'undefined') board[y][x] = square;
-      });
+      // load squares
+      console.log('loading squares');
 
-      return board;
+      const squares = await db('squares')
+        .select('*')
+        .where({
+          game_id: id,
+        });
+
+      return buildBoard(squares);
     },
   },
   Query: {
-    games: () => [game],
+    games() {
+      return db('games').select();
+    },
   },
   Mutation: {
-    createGame: (_, { height, width }) => {
-      /*
-      game = insert into games (height, width) values (height, width) returning *
-      let squares = []
-      for (const y in height)
-        for (const x in width)
+    async createGame(_, { width, height }) {
+      // Validate input
+      if (![height, width].every(isValid)) {
+        throw new Error(
+          `Height and width must be between ${MIN_DIMENSION} and ${MAX_DIMENSION} squares`,
+        );
+      }
+
+      // Create game from width and height
+      const [game] = await db('games')
+        .insert({ width, height })
+        .returning('*');
+
+      // Build objects for board squares
+      let squares = [];
+      for (let y = 0; y <= height; y++) {
+        for (let x = 0; x <= width; x++) {
           squares.push({
-            gameId: game.id,
+            game_id: game.id,
+            // Original minesweeper had 12%-17% bomb probability
+            has_bomb: Math.random() < 0.15,
             x,
             y,
-          })
-      insert into squares (*) values(...squares)
-      */
+          });
+        }
+      }
+
+      // Create squares
+      const loadedSquares = await db('squares')
+        .insert(squares)
+        .returning('*');
+
       return {
         ...game,
-        height,
-        width,
+        board: buildBoard(loadedSquares),
       };
     },
   },

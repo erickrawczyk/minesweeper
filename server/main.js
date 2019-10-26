@@ -4,7 +4,7 @@ import { ApolloServer, gql } from 'apollo-server-express';
 
 import schema from './schema';
 
-const { PORT = 3000 } = process.env;
+const { PORT = 8080 } = process.env;
 
 const app = express();
 

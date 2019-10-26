@@ -16,8 +16,16 @@ export const typeDefs = gql`
 `;
 
 export const resolvers = {
+  Square: {
+    gameId({ game_id }) {
+      return game_id;
+    },
+    hasBomb({ has_bomb }) {
+      return has_bomb;
+    },
+  },
   Mutation: {
-    move: (_, { gameId, x, y }) => {
+    move(_, { gameId, x, y }) {
       /*
       // update selected square
       update squares set selected = true where gameId = $1, x = $2, y = $3 returning *
