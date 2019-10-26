@@ -69,19 +69,20 @@ jobs:
       - run:
           name: Terraform Plan
           command: |
-            terraform plan -var "image_version=$VERSION" -o plan.tfplan
+            echo $VERSION
+            terraform plan -var "image_version=$VERSION" -out=plan.tfplan
 
       - run:
           name: Terraform Apply
           command: |
             ls -la plan.tfplan
-            echo $VERSION
             # terraform apply -var "image_version=$VERSION" plan.tfplan
 workflows:
   version: 2
   deploy:
     jobs:
-      - application
-      - infrastructure:
-          requires:
-            - application
+      # - application
+      - infrastructure
+      # - infrastructure:
+      #     requires:
+      #       - application
