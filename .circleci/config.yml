@@ -37,17 +37,20 @@ jobs:
           name: Set Environment Variables
           command: |
             SECRET=$(aws secretsmanager get-secret-value --secret-id minesweeper_db_credentials --region us-east-1 | jq '.SecretString | fromjson')
-            export DB_USERNAME=$(echo $SECRET | jq -r '.username')
-            export DB_PASSWORD=$(echo $SECRET | jq -r '.password')
-            export DB_URL=$(echo $SECRET | jq -r '.url')
-            export ECR_REPOSITORY=$(echo $SECRET | jq -r '.repository')
-            export VERSION=$(git rev-parse --short HEAD)
+            echo "export DB_USERNAME=$(echo $SECRET | jq -r '.username')" >> $BASH_ENV
+            echo "export DB_PASSWORD=$(echo $SECRET | jq -r '.password')" >> $BASH_ENV
+            echo "export DB_URL=$(echo $SECRET | jq -r '.url')" >> $BASH_ENV
+            echo "export ECR_REPOSITORY=$(echo $SECRET | jq -r '.repository')" >> $BASH_ENV
+            echo "export VERSION=$(echo $CIRCLE_SHA1 | cut -c -7)" >> $BASH_ENV
 
       - run:
           name: Build and Push Docker Image
           command: |
+            echo $ECR_REPOSITORY
+            echo $VERSION
+            aws ecr get-login --no-include-email --region us-east-1 | /bin/bash
             docker build --build-arg DB_USERNAME --build-arg DB_PASSWORD --build-arg DB_URL --build-arg VERSION -t minesweeper .
-            docker tag minesweeper:$VERSION $ECR_REPOSITORY:$VERSION
+            docker tag minesweeper:latest $ECR_REPOSITORY:$VERSION
             docker push $ECR_REPOSITORY:$VERSION
   infrastructure:
     docker:
