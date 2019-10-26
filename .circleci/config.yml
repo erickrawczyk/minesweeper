@@ -76,13 +76,12 @@ jobs:
           name: Terraform Apply
           command: |
             ls -la plan.tfplan
-            # terraform apply -var "image_version=$VERSION" plan.tfplan
+            terraform apply -auto-approve plan.tfplan
 workflows:
   version: 2
   deploy:
     jobs:
-      # - application
-      - infrastructure
-      # - infrastructure:
-      #     requires:
-      #       - application
+      - application
+      - infrastructure:
+          requires:
+            - application
