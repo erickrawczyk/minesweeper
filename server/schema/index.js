@@ -5,6 +5,7 @@ import { typeDefs as Square, resolvers as SquareResolvers } from './Square';
 
 const Root = gql`
   type Query
+  type Mutation
 `;
 
 const typeDefs = [Root, Game, Square];

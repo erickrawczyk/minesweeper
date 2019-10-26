@@ -2,17 +2,21 @@ import { gql } from 'apollo-server-express';
 
 export const typeDefs = gql`
   type Game {
-    id: ID
-    createdAt: String
-    modifiedAt: String
+    id: ID!
+    createdAt: String!
+    modifiedAt: String!
     endedAt: String
-    width: Int
-    height: Int
-    board: [[Square]]
+    width: Int!
+    height: Int!
+    board: [[Square]]!
   }
 
   extend type Query {
     games: [Game]
+  }
+
+  extend type Mutation {
+    createGame(width: Int!, height: Int!): Game
   }
 `;
 
@@ -37,6 +41,7 @@ export const resolvers = {
   Game: {
     board: () => {
       const board = [];
+      // replace with select * from squares where gameId = $1
       const squares = [
         createSquare({ x: 0, y: 0 }),
         createSquare({ x: 1, y: 0 }),
@@ -57,5 +62,14 @@ export const resolvers = {
   },
   Query: {
     games: () => [game],
+  },
+  Mutation: {
+    createGame: (_, { height, width }) => {
+      return {
+        ...game,
+        height,
+        width,
+      };
+    },
   },
 };
