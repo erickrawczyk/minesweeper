@@ -26,13 +26,17 @@ export const resolvers = {
   },
   Mutation: {
     async move(_, { gameId, x, y }, { db }) {
-      // Load square to make sure it's not already selected
-      const { selected } = await db('squares')
+      // Load square to make sure it exists and it's not already selected
+      const initialSquare = await db('squares')
         .select()
         .where({ game_id: gameId, x, y })
         .first();
 
-      if (selected) {
+      if (!initialSquare) {
+        throw new UserInputError('Square not found');
+      }
+
+      if (initialSquare.selected) {
         throw new UserInputError('This square is already selected');
       }
 

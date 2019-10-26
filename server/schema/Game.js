@@ -1,10 +1,10 @@
 import { gql, UserInputError } from 'apollo-server-express';
 
-const MAX_DIMENSION = 25;
-const MIN_DIMENSION = 3;
+const MAX_LENGTH = 25;
+const MIN_LENGTH = 3;
 
 const isValid = value => {
-  return value >= MIN_DIMENSION && value <= MAX_DIMENSION;
+  return value >= MIN_LENGTH && value <= MAX_LENGTH;
 };
 
 // generate board from squares
@@ -80,7 +80,7 @@ export const resolvers = {
       // Validate input
       if (![height, width].every(isValid)) {
         throw new UserInputError(
-          `Height and width must be between ${MIN_DIMENSION} and ${MAX_DIMENSION} squares`,
+          `Height and width must be between ${MIN_LENGTH} and ${MAX_LENGTH} squares`,
         );
       }
 
