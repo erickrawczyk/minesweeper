@@ -9,7 +9,3 @@ output "ecr_repository_url" {
 output "rds_endpoint" {
   value = aws_db_instance.minesweeper.endpoint
 }
-
-output "load_balancer_endpoint" {
-  value = aws_alb.main.dns_name
-}
