@@ -16,6 +16,7 @@ app.get('/', (req, res) => {
   return res.send({
     PING: new Date().toISOString(),
     VERSION,
+    ROUTES: ['/', '/graphql'],
   });
 });
 
