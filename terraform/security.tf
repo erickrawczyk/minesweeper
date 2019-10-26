@@ -1,4 +1,4 @@
-# ALB Security Group: Edit to restrict access to the application
+# ALB Security Group
 resource "aws_security_group" "lb" {
   name        = "minesweeper-load-balancer-security-group"
   description = "controls access to the ALB"
@@ -6,7 +6,7 @@ resource "aws_security_group" "lb" {
 
   ingress {
     protocol    = "tcp"
-    from_port   = var.app_port
+    from_port   = 80
     to_port     = var.app_port
     cidr_blocks = ["0.0.0.0/0"]
   }
