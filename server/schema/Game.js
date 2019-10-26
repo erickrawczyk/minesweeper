@@ -1,14 +1,20 @@
 import { gql } from 'apollo-server-express';
 
 export const typeDefs = gql`
+  enum GameResult {
+    WON
+    LOST
+  }
+
   type Game {
     id: ID!
     createdAt: String!
     modifiedAt: String!
-    endedAt: String
+    completedAt: String
     width: Int!
     height: Int!
     board: [[Square]]!
+    result: GameResult
   }
 
   extend type Query {
@@ -24,7 +30,7 @@ const game = {
   id: 'foo',
   createdAt: new Date().toISOString(),
   modifiedAt: new Date().toISOString(),
-  endedAt: new Date().toISOString(),
+  completedAt: new Date().toISOString(),
   width: 3,
   height: 2,
 };
@@ -65,6 +71,18 @@ export const resolvers = {
   },
   Mutation: {
     createGame: (_, { height, width }) => {
+      /*
+      game = insert into games (height, width) values (height, width) returning *
+      let squares = []
+      for (const y in height)
+        for (const x in width)
+          squares.push({
+            gameId: game.id,
+            x,
+            y,
+          })
+      insert into squares (*) values(...squares)
+      */
       return {
         ...game,
         height,
