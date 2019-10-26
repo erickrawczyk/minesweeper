@@ -43,7 +43,7 @@ jobs:
             docker build --build-arg DB_USERNAME --build-arg DB_PASSWORD --build-arg DB_URL --build-arg VERSION -t minesweeper .
             docker tag minesweeper:$VERSION $ECR_REPOSITORY:$VERSION
             docker push $ECR_REPOSITORY:$VERSION
-  terraform:
+  infrastructure:
     docker:
       - image: circleci/buildpack-deps:18.10
 
@@ -67,3 +67,11 @@ jobs:
       - run:
           name: Terraform Plan
           command: terraform plan
+workflows:
+  version: 2
+  deploy:
+    jobs:
+      - application
+      - infrastructure:
+          requires:
+            - application
