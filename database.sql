@@ -1,11 +1,17 @@
+-- This script will initialize a PSQL database for use with the minesweeper application
+-- It should be idempotent, but something like Flyway may be more useful for future changes
+
+-- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Create Game Result enum type
 DO $$ BEGIN
     CREATE TYPE game_result AS ENUM ('WON', 'LOST');
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
+-- Create games table
 CREATE TABLE IF NOT EXISTS games (
   id UUID NOT NULL DEFAULT uuid_generate_v4(),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -16,6 +22,7 @@ CREATE TABLE IF NOT EXISTS games (
   result game_result
 );
 
+-- Create squares table
 CREATE TABLE IF NOT EXISTS squares (
   id UUID NOT NULL DEFAULT uuid_generate_v4(),
   game_id UUID NOT NULL,
@@ -27,6 +34,7 @@ CREATE TABLE IF NOT EXISTS squares (
   y INT NOT NULL
 );
 
+-- Create function to change the modified_at timestamp on update
 CREATE OR REPLACE FUNCTION trigger_set_timestamp()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -35,6 +43,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Remove and re-add the modified trigger to the games and squares tables
 DROP TRIGGER IF EXISTS set_timestamp ON games;
 DROP TRIGGER IF EXISTS set_timestamp ON squares;
 
