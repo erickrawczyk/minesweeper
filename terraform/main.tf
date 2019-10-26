@@ -11,3 +11,7 @@ terraform {
     region = "us-east-1"
   }
 }
+
+module "git" {
+  source = "./modules/git"
+}
