@@ -1,7 +1,5 @@
 import { gql } from 'apollo-server-express';
 
-import db from '../lib/db';
-
 const MAX_DIMENSION = 25;
 const MIN_DIMENSION = 3;
 
@@ -58,7 +56,7 @@ export const resolvers = {
     completedAt({ completed_at }) {
       return completed_at ? new Date(completed_at).toISOString() : null;
     },
-    async board({ id, board }) {
+    async board({ id, board }, args, { db }) {
       // bypass query if provided
       if (board && board.length) return board;
 
@@ -75,12 +73,12 @@ export const resolvers = {
     },
   },
   Query: {
-    games() {
+    games(_, args, { db }) {
       return db('games').select();
     },
   },
   Mutation: {
-    async createGame(_, { width, height }) {
+    async createGame(_, { width, height }, { db }) {
       // Validate input
       if (![height, width].every(isValid)) {
         throw new Error(

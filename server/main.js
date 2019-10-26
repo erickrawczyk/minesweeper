@@ -3,12 +3,13 @@ import bodyParser from 'body-parser';
 import { ApolloServer, gql } from 'apollo-server-express';
 
 import schema from './schema';
+import db from './lib/db';
 
 const { PORT = 8080 } = process.env;
 
 const app = express();
 
-const apolloServer = new ApolloServer({ schema });
+const apolloServer = new ApolloServer({ schema, context: { db } });
 apolloServer.applyMiddleware({ app });
 
 app.listen({ port: PORT }, () =>
