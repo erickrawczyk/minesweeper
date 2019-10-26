@@ -46,28 +46,19 @@ jobs:
       - run:
           name: Build and Push Docker Image
           command: |
-            echo $ECR_REPOSITORY
-            echo $VERSION
             aws ecr get-login --no-include-email --region us-east-1 | /bin/bash
             docker build --build-arg DB_USERNAME --build-arg DB_PASSWORD --build-arg DB_URL --build-arg VERSION -t minesweeper .
             docker tag minesweeper:latest $ECR_REPOSITORY:$VERSION
             docker push $ECR_REPOSITORY:$VERSION
   infrastructure:
     docker:
-      - image: circleci/buildpack-deps:18.10
+      - image: hashicorp/terraform
 
     working_directory: ~/minesweeper/terraform
 
     steps:
-      - checkout
-
-      - run:
-          name: Install Terraform
-          command: |
-            VER="0.12.12"
-            curl -o /tmp/terraform.zip https://releases.hashicorp.com/terraform/$VER/terraform_$VER_linux_amd64.zip
-            unzip /tmp/terraform.zip -d /tmp
-            cp /tmp/terraform /usr/bin
+      - checkout:
+          path: ~/minesweeper
 
       - run:
           name: Terraform Init
