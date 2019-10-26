@@ -8,6 +8,7 @@ export const typeDefs = gql`
     hasBomb: Boolean!
     x: Int!
     y: Int!
+    adjacentBombs: Int
   }
 
   extend type Mutation {

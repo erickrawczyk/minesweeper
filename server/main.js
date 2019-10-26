@@ -5,12 +5,19 @@ import { ApolloServer, gql } from 'apollo-server-express';
 import schema from './schema';
 import db from './lib/db';
 
-const { PORT = 8080 } = process.env;
+const { PORT = 8080, VERSION } = process.env;
 
 const app = express();
 
 const apolloServer = new ApolloServer({ schema, context: { db } });
 apolloServer.applyMiddleware({ app });
+
+app.get('/', (req, res) => {
+  return res.send({
+    PING: new Date().toISOString(),
+    VERSION,
+  });
+});
 
 app.listen({ port: PORT }, () =>
   console.log(
