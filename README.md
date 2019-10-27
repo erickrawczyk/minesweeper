@@ -174,13 +174,19 @@ query {
         "width": 5,
         "height": 5,
         "createdAt": "2019-10-26T23:02:20.801Z",
-        "result": 'WON'
+        "result": "WON"
       },
       ...
     ]
   }
 }
 ```
+
+## Project Layout
+
+The application server entrypoint is in `main.js` (`index.js` just contains esm). It uses Apollo for the GraphQL server, and the `schema` folder separates each resource into separate files. `lib` contains database
+
+The infrastructure code is stored in the `terraform` folder. Most of the files are separated by service, although autoscaling, security, and networking are grouped by functionality instead. The application is Dockerized and shipped on AWS Fargate through CircleCI.
 
 ## Roadmap
 
