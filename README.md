@@ -190,11 +190,11 @@ The infrastructure code is stored in the `terraform` folder. Most of the files a
 
 ## Roadmap
 
-- Add Unit and E2E tests
-
 - Improve the mechanism to determine bomb distribution. The current random implementation could lead to unsolvable and/or boring games.
 
 - Improve the board-drawing algorithm, potentially adding a `Board` type to both GraphQL and Postgres. The separation of concerns between Game and Square are blurred, and the algorithm is too mutative.
+
+- Improve db mocking, as the current implementation isn't flexible enough to handle multiple db calls effectively
 
 - Set up a branch workflow in CI that will deploy feature branches to a separate cluster for testing
 

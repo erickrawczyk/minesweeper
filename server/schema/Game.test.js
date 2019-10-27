@@ -82,4 +82,43 @@ describe('Game', () => {
     expect(game.board).toEqual(board);
     expect(db).not.toHaveBeenCalledWith('squares');
   });
+
+  test('createGame input validation minimum', async () => {
+    const query = `
+      mutation {
+        createGame(width: 0, height: 0)
+      }
+    `;
+    const { executeQuery, db } = new QueryExecutor([{ id: 'foo' }]);
+    const res = await executeQuery({ query });
+    expect(res.errors).toHaveLength(1);
+    expect(db).not.toHaveBeenCalled();
+  });
+
+  test('createGame input validation maximum', async () => {
+    const query = `
+      mutation {
+        createGame(width: 9999, height: 9999)
+      }
+    `;
+    const { executeQuery, db } = new QueryExecutor([{ id: 'foo' }]);
+    const res = await executeQuery({ query });
+    expect(res.errors).toHaveLength(1);
+    expect(db).not.toHaveBeenCalled();
+  });
+
+  test('createGame creates game', async () => {
+    const query = `
+      mutation {
+        createGame(width: 3, height: 3) {
+          id
+        }
+      }
+    `;
+    const { executeQuery, db } = new QueryExecutor([{ id: 'foo' }]);
+    const res = await executeQuery({ query });
+    expect(res.errors).toBeUndefined();
+    expect(db).toHaveBeenCalledWith('games');
+    expect(db).toHaveBeenCalledWith('squares');
+  });
 });
