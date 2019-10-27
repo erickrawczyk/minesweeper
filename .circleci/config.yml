@@ -30,7 +30,7 @@ jobs:
       # run tests!
       - run: yarn test
 
-  application:
+  build:
     docker:
       - image: circleci/buildpack-deps:18.10
 
@@ -76,7 +76,7 @@ jobs:
             docker build --build-arg DB_USERNAME --build-arg DB_PASSWORD --build-arg DB_URL --build-arg VERSION -t minesweeper .
             docker tag minesweeper:latest $ECR_REPOSITORY:$VERSION
             docker push $ECR_REPOSITORY:$VERSION
-  infrastructure:
+  deploy:
     docker:
       - image: hashicorp/terraform
 
@@ -107,9 +107,9 @@ workflows:
   deploy:
     jobs:
       - test
-      - application:
+      - build:
           requires:
             - test
-      - infrastructure:
+      - deploy:
           requires:
-            - application
+            - build
