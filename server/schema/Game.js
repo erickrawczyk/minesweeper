@@ -1,7 +1,7 @@
 import { gql, UserInputError } from 'apollo-server-express';
 
-const MAX_LENGTH = 25;
-const MIN_LENGTH = 3;
+const MAX_LENGTH = 50;
+const MIN_LENGTH = 2;
 
 const isValid = value => {
   return value >= MIN_LENGTH && value <= MAX_LENGTH;
@@ -71,8 +71,8 @@ export const typeDefs = gql`
     completedAt: String
     height: Int!
     width: Int!
-    board: [[Square]]!
     result: GameResult
+    board: [[Square]]!
   }
 
   extend type Query {

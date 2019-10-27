@@ -7,8 +7,8 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "start": "node server/index.js",
-    "dev": "nodemon -r dotenv/config server/index.js"
+    "start": "nodemon -r dotenv/config server/index.js",
+    "postinstall": "cp -n .env.example .env || true"
   },
   "dependencies": {
     "apollo-server-express": "^2.9.7",
