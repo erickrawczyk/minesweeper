@@ -8,9 +8,9 @@ const Root = gql`
   type Mutation
 `;
 
-const typeDefs = [Root, Game, Square];
+export const typeDefs = [Root, Game, Square];
 
-const resolvers = [GameResolvers, SquareResolvers];
+export const resolvers = [GameResolvers, SquareResolvers];
 
 const AppSchema = makeExecutableSchema({
   typeDefs,
